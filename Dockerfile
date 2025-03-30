@@ -7,6 +7,7 @@ LABEL maintainer="aman8055"
 ENV PYTHONUNBUFFERED=1
 
 COPY requirements.txt /tmp/requirements.txt
+COPY requirements.dev.txt /tmp/requirements.dev.txt
 
 # copy code into 'app' folder inside the container
 COPY ./app /app
@@ -17,6 +18,8 @@ WORKDIR /app
 # expose port 8000 from the container to the host
 EXPOSE 8000
 
+ARG DEV=false
+
 # 1. create a virtual environment - It's not necessary to create a virtual environment in Docker, but it's a good practice to isolate dependencies. This is especially useful if you plan to run multiple applications in the same container or if you want to avoid conflicts with system packages.
 # 2. upgrade pip
 # 3. install dependencies
@@ -25,6 +28,9 @@ EXPOSE 8000
 RUN python -m venv /venv && \
     /venv/bin/pip install --upgrade pip && \
     /venv/bin/pip install -r /tmp/requirements.txt && \
+    if [ "$DEV" = true ]; then \
+        /venv/bin/pip install -r /tmp/requirements.dev.txt; \
+    fi && \
     rm -rf /tmp && \
     adduser \
         --disabled-password \
